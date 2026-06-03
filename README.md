@@ -1,8 +1,8 @@
 # personal-skills
 
 A personal collection of cross-platform AI-assistant **agents** and **skills**
-that work with both [Claude Code](https://claude.com/claude-code) and
-[OpenCode](https://opencode.ai).
+that work with [Claude Code](https://claude.com/claude-code),
+[OpenCode](https://opencode.ai), and Codex.
 
 The two are different primitives:
 
@@ -21,16 +21,21 @@ The two are different primitives:
 ./install.sh
 ```
 
-The installer symlinks every agent and skill in this repo into both
-`~/.claude/` and `~/.config/opencode/`. It is idempotent — re-running
+The installer symlinks every agent and skill in this repo into `~/.claude/`,
+`~/.config/opencode/`, and `~/.codex/`. It is idempotent — re-running
 replaces existing symlinks, prunes dangling links to removed items, and
 backs up any real files at the target paths to `<path>.bak-<timestamp>`
 before replacing them.
 
+Codex uses TOML custom-agent files instead of Markdown agent files, so
+`install.sh` generates `~/.codex/agents/<name>.toml` from each Markdown agent.
+The Markdown files remain the source of truth for Claude Code and OpenCode.
+
 To uninstall, remove the symlinks under:
 
 - `~/.claude/{agents,skills,commands}`
-- `~/.config/opencode/{agents,skills,command}`
+- `~/.config/opencode/{agents,skills,commands}`
+- `~/.codex/{agents,skills}` and `~/.codex/AGENTS.md`
 
 ## Agents
 
@@ -77,8 +82,8 @@ Create a new folder under `agents/`:
 agents/my-agent/my-agent.md
 ```
 
-Frontmatter combines Claude Code and OpenCode dialects so a single file
-works on both platforms:
+Frontmatter combines Claude Code and OpenCode dialects. For Codex, the
+installer converts the Markdown agent into a TOML custom-agent file:
 
 ```yaml
 ---
@@ -98,7 +103,9 @@ Re-run `./install.sh` to wire it up.
 > Permission enforcement (`tools.write: false`, etc.) only applies in
 > OpenCode. In Claude Code, subagents inherit the parent session's
 > permission mode, so any "no write" guarantees are prose-only on that
-> side.
+> side. In Codex, `tools.write`, `tools.edit`, and `tools.bash` are mapped
+> only to a coarse custom-agent `sandbox_mode` (`read-only` or
+> `workspace-write`).
 
 ### Adding a skill
 
