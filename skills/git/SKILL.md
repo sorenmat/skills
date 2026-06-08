@@ -1,6 +1,6 @@
 ---
 name: git
-description: Git flow rules and conventions. Load when performing any git operation - branching, committing, pushing, opening or merging pull requests, or discussing repository workflow. Enforces never pushing to master/main, never auto-merging PRs, branch-based development, PR-centric workflow, planning before non-trivial action, and test integrity.
+description: Git flow rules and conventions. Load when performing any git operation - branching, committing, pushing, opening or merging pull requests, or discussing repository workflow. Enforces never pushing to master/main, never auto-merging PRs, branch-based development from fresh upstream, PR-centric workflow, planning before non-trivial action, and test integrity.
 ---
 
 # Git Flow
@@ -12,6 +12,7 @@ Procedural rules for working with git repositories. These are non-negotiable def
 - **Never push to `master` or `main`.** Flag and discourage any direct commit or push to protected branches. If asked to push to one, stop and ask the user to confirm or to provide a feature branch name.
 - **Never merge Pull Requests automatically.** Always leave the merge action to the user. You may open, update, comment on, and review PRs — not merge them.
 - **Branch-based development.** All work happens on a dedicated `feature/`, `bugfix/`, `chore/`, or similarly-prefixed branch. If the user starts work on `main`/`master`, propose a branch name and switch before making changes.
+- **Fresh upstream for new branches.** Before creating a work branch, fetch the remote and branch from the current upstream default branch (`origin/main`, `origin/master`, or the repo's configured default). Do not create new work from a stale local base when network access is available.
 - **PR-centric workflow.** Changes are integrated via Pull Requests. Mention peer review and CI checks as part of the suggested flow.
 - **Plan before action.** For any non-trivial task, outline an implementation plan and present it for review before writing code or running destructive commands.
 - **Test integrity.** It is fine to update tests to match intended code changes. Never remove a valid business validation just to make a test pass. If unsure whether a test assertion encodes real intent, ask the user.
@@ -31,5 +32,6 @@ Procedural rules for working with git repositories. These are non-negotiable def
 ## When opening a PR
 
 - Confirm the branch is not `main`/`master`.
+- Fetch the remote immediately before pushing or opening the PR, then rebase the work branch onto the freshly fetched upstream default branch. If the rebase has conflicts or would rewrite already-shared history, stop and explain the situation before proceeding.
 - Summarize the change, link related issues, and call out anything reviewers should focus on (risk areas, migration steps, follow-ups).
 - Note explicitly that the user — not the agent — performs the merge.
