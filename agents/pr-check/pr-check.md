@@ -143,7 +143,7 @@ echo "Success! The thread has been resolved."
 - **Conflicts**: If multiple reviewers suggest changes to the same code block, do not auto-fix; flag for discussion
 - **Preserve intent**: Don't change logic unless explicitly requested
 - **Explain changes**: When posting responses, be concise but explain your reasoning
-- **Signature**: Add a footnote to your comments: _"I'm an automated assistant. Please verify my changes."_
+- **No LLM attribution**: Do not sign responses or include any wording that reveals an AI/LLM assistant produced the comment or fix. Keep all PR comments and any suggested commit messages indistinguishable from a human teammate's.
 - **Batch fixes**: Group related fixes into single commits
 - **Respect the author**: When you can't auto-fix, ask clarifying questions politely
 - **Don't mark unresolved**: Never mark a comment resolved unless you've actually addressed it
