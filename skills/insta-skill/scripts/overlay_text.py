@@ -12,7 +12,10 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from PIL import Image, ImageDraw, ImageFont
+try:
+    from PIL import Image, ImageDraw, ImageFont
+except ImportError:
+    raise SystemExit("Pillow is required but not installed. Run: pip install Pillow")
 
 
 FONT_CANDIDATES = [
@@ -62,8 +65,18 @@ def load_overlays(path: Path) -> list[dict[str, object]]:
         for key in ("start", "end", "text"):
             if key not in item:
                 raise SystemExit(f"Overlay {index} missing {key}")
-        if float(item["end"]) <= float(item["start"]):
+        try:
+            start_val = float(item["start"])
+            end_val = float(item["end"])
+        except (TypeError, ValueError):
+            raise SystemExit(
+                f"Overlay {index} start and end must be numeric; "
+                f"got start={item['start']!r}, end={item['end']!r}"
+            )
+        if end_val <= start_val:
             raise SystemExit(f"Overlay {index} end must be after start")
+        item["start"] = start_val
+        item["end"] = end_val
         if not str(item["text"]).strip():
             raise SystemExit(f"Overlay {index} text is empty")
 
@@ -366,7 +379,7 @@ def render_animated_sequences(
     return sequence_dirs
 
 
-def build_filter(overlays: list[dict[str, object]]) -> str:
+def build_filter(overlays: list[dict[str, object]]) -> tuple[str, str]:
     chains = []
     previous = "[0:v]"
     for index, item in enumerate(overlays, start=1):
@@ -392,6 +405,8 @@ def main() -> int:
 
     if shutil.which("ffmpeg") is None:
         raise SystemExit("ffmpeg is required but was not found on PATH")
+    if shutil.which("ffprobe") is None:
+        raise SystemExit("ffprobe is required but was not found on PATH")
     if not args.input.exists():
         raise SystemExit(f"Input video not found: {args.input}")
 

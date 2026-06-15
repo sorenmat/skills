@@ -67,7 +67,7 @@ class MetadataParser(HTMLParser):
 
 
 def utc_now() -> str:
-    return dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def resolve_home(args: argparse.Namespace) -> Path:
@@ -86,18 +86,21 @@ def normalize_source(project: str) -> tuple[str, str, str]:
     if not candidate:
         raise SystemExit("Project name is required")
 
-    has_scheme = bool(urllib.parse.urlparse(candidate).scheme)
+    parsed_candidate = urllib.parse.urlparse(candidate)
+    has_http_scheme = parsed_candidate.scheme in ("http", "https")
     looks_like_domain = "." in candidate and " " not in candidate
 
-    if has_scheme or looks_like_domain:
-        url = candidate if has_scheme else f"https://{candidate}"
+    if has_http_scheme or looks_like_domain:
+        url = candidate if has_http_scheme else f"https://{candidate}"
         parsed = urllib.parse.urlparse(url)
-        host = (parsed.hostname or candidate).lower()
+        if parsed.scheme not in ("http", "https") or not parsed.hostname:
+            return slugify(candidate, allow_dot=False), "name", ""
+        host = parsed.hostname.lower()
         host = host[4:] if host.startswith("www.") else host
         netloc = host
         if parsed.port:
             netloc = f"{netloc}:{parsed.port}"
-        source_url = urllib.parse.urlunparse((parsed.scheme or "https", netloc, "", "", "", ""))
+        source_url = urllib.parse.urlunparse((parsed.scheme, netloc, "", "", "", ""))
         return slugify(host, allow_dot=True), "url", source_url
 
     return slugify(candidate, allow_dot=False), "name", ""
@@ -119,7 +122,7 @@ def post_id_from(data: dict[str, Any]) -> str:
         if data.get(key)
     ).strip()
     digest = hashlib.sha1(source.encode("utf-8")).hexdigest()[:8] if source else "untitled"
-    timestamp = dt.datetime.now(dt.UTC).strftime("%Y%m%d-%H%M%S")
+    timestamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%d-%H%M%S")
     label_source = data.get("hook") or data.get("topic_fingerprint") or digest
     return f"{timestamp}-{slugify(str(label_source), allow_dot=False)[:48]}-{digest}".strip("-")
 
