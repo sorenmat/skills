@@ -52,6 +52,7 @@ To uninstall, remove the symlinks under:
 |---|---|
 | `git` | Git flow rules: never push to `master`/`main`, never auto-merge PRs, branch-based development, plan before non-trivial action |
 | `documentation-alignment` | Ubiquitous language, ADRs for non-obvious decisions, aligning on data relationships and behavior before writing code |
+| `insta-skill` | Project-based Instagram content generation with style guides, saved post history, duplicate checks, Veo video prompts, overlays, and Buffer workflows |
 
 ## Repo layout
 

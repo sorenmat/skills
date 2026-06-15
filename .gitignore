@@ -1,2 +1,4 @@
 **/.claude/settings.local.json
 **/tool-log.jsonl
+**/__pycache__/
+**/*.pyc

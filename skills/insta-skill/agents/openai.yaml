@@ -1,0 +1,4 @@
+interface:
+  display_name: "Insta Skill"
+  short_description: "Project-based Instagram post generation"
+  default_prompt: "Use $insta-skill to create an on-brand Instagram post for a saved project."
