@@ -21,11 +21,11 @@ Procedural rules for working with git repositories. These are non-negotiable def
 
 - Read-only git commands (`status`, `log`, `diff`, `branch`, `show`, `blame`, `remote -v`) are safe to run freely to gather context.
 - Mutating commands (`commit`, `push`, `rebase`, `reset --hard`, `branch -D`, `tag`, `cherry-pick`) require a clear, user-stated intent. State what you are about to do before doing it.
-- Never run `git push --force` or `git push --force-with-lease` without an explicit user instruction for *that specific* push.
+- Never run `git push --force` or `git push --force-with-lease` without an explicit user instruction for _that specific_ push.
 
 ## Commit hygiene
 
-- Keep commit messages focused: subject line in imperative mood, body explaining *why* (not *what* — the diff shows what).
+- Keep commit messages focused: subject line in imperative mood, body explaining _why_ (not _what_ — the diff shows what).
 - One logical change per commit when practical. Avoid grab-bag commits.
 - Do not commit generated files, secrets, large binaries, or local-only config. Check `.gitignore` first.
 
@@ -43,5 +43,35 @@ This rule also applies to tags and any other git metadata that becomes part of t
 
 - Confirm the branch is not `main`/`master`.
 - Fetch the remote immediately before pushing or opening the PR, then rebase the work branch onto the freshly fetched upstream default branch. If the rebase has conflicts or would rewrite already-shared history, stop and explain the situation before proceeding.
-- Summarize the change, link related issues, and call out anything reviewers should focus on (risk areas, migration steps, follow-ups).
+- Use this PR description template, filling in each section with concise, specific notes and leaving intentionally empty sections marked clearly (for example, `None` or `Not checked because...`):
+
+  ```markdown
+  ## Why
+
+  <!-- What were we trying to improve, fix, explore, or unblock? -->
+
+  ## What Changed
+
+  <!-- The short version of what actually changed. -->
+
+  ## Decisions / Tradeoffs
+
+  <!-- Why this direction? Anything intentionally rough, temporary, or worth revisiting? -->
+
+  ## How I Checked It
+
+  <!-- Tests, manual clicks, screenshots, logs, or "not checked because..." -->
+
+  ## Review Notes
+
+  <!-- What should reviewers focus on? Any parts that feel uncertain? -->
+
+  ## Follow-ups
+
+  <!-- Things intentionally left for later. -->
+
+  - [ ]
+  ```
+
+- Link related issues when applicable, especially in `Why` or `Follow-ups`.
 - Note explicitly that the user — not the agent — performs the merge.
