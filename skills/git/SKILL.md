@@ -39,6 +39,72 @@ Commit messages, PR titles, PR descriptions, and review comments must not disclo
 
 This rule also applies to tags and any other git metadata that becomes part of the published repository or PR.
 
+## When addressing PR review comments
+
+- Inspect review threads with thread-aware data, not only flat PR comments. Use GitHub GraphQL through `gh api graphql` when review-thread state matters.
+- Treat fixing code, replying to comments, and resolving conversations as separate write actions. Do not resolve conversations unless the user explicitly asks for it, or the current request clearly includes closing out fixed review comments.
+- Resolve only comments that are actually handled by the current changes. Leave ambiguous, disputed, or intentionally-deferred threads unresolved and summarize why.
+- Prefer resolving fixed threads after the fixing commit is pushed, so reviewers can see the updated diff and GitHub can mark old anchors as outdated.
+- Verify thread state after resolving and report any remaining unresolved actionable threads.
+
+Useful GraphQL read pattern:
+
+```bash
+gh api graphql \
+  -f owner='<owner>' \
+  -f name='<repo>' \
+  -F number=<pr-number> \
+  -f query='query($owner:String!, $name:String!, $number:Int!) {
+    repository(owner:$owner, name:$name) {
+      pullRequest(number:$number) {
+        reviewThreads(first:100) {
+          nodes {
+            id
+            isResolved
+            isOutdated
+            path
+            line
+            comments(first:20) {
+              nodes {
+                author { login }
+                body
+                url
+              }
+            }
+          }
+        }
+      }
+    }
+  }'
+```
+
+Resolve a fixed review thread:
+
+```bash
+gh api graphql \
+  -f thread_id='<review-thread-id>' \
+  -f query='mutation($thread_id:ID!) {
+    resolveReviewThread(input: {threadId: $thread_id}) {
+      thread {
+        id
+        isResolved
+      }
+    }
+  }'
+```
+
+For multiple fixed threads, resolve them in one mutation with separate variables/aliases:
+
+```bash
+gh api graphql \
+  -f thread1='<review-thread-id-1>' \
+  -f thread2='<review-thread-id-2>' \
+  -f query='mutation($thread1:ID!, $thread2:ID!) {
+    a: resolveReviewThread(input: {threadId: $thread1}) { thread { id isResolved } }
+    b: resolveReviewThread(input: {threadId: $thread2}) { thread { id isResolved } }
+  }'
+```
+
 ## When opening a PR
 
 - Confirm the branch is not `main`/`master`.
